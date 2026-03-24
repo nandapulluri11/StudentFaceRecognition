@@ -1,0 +1,87 @@
+
+{% extends "base.html" %}
+
+{% block title %}Mark Attendance - {{ course['name'] }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4 animate__animated animate__fadeInDown">
+    <div class="col-12">
+        <div class="card bg-white p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 fw-bold text-gray-800">Attendance Marking</h1>
+                    <p class="text-muted mb-0">Course: {{ course['name'] }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <form action="" method="GET" class="d-flex gap-2">
+                        <input type="date" name="date" class="form-control" value="{{ date }}" onchange="this.form.submit()">
+                    </form>
+                    <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card animate__animated animate__fadeInUp">
+            <div class="card-header py-3 bg-transparent">
+                <h6 class="m-0 font-weight-bold text-primary">Student List for {{ date }}</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="date" value="{{ date }}">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Username</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr class="animate__animated animate__fadeInLeft" style="animation-delay: {{ loop.index0 * 0.05 }}s">
+                                    <td><strong>{{ student['full_name'] }}</strong></td>
+                                    <td class="text-muted">{{ student['username'] }}</td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <input type="radio" class="btn-check" name="status_{{ student['id'] }}" id="present_{{ student['id'] }}" value="Present" 
+                                                   {% if attendance_map.get(student['id']) == 'Present' %}checked{% endif %} required>
+                                            <label class="btn btn-outline-success btn-sm" for="present_{{ student['id'] }}">
+                                                <i class="fas fa-check me-1"></i> Present
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="status_{{ student['id'] }}" id="late_{{ student['id'] }}" value="Late"
+                                                   {% if attendance_map.get(student['id']) == 'Late' %}checked{% endif %}>
+                                            <label class="btn btn-outline-warning btn-sm" for="late_{{ student['id'] }}">
+                                                <i class="fas fa-clock me-1"></i> Late
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="status_{{ student['id'] }}" id="absent_{{ student['id'] }}" value="Absent"
+                                                   {% if attendance_map.get(student['id']) == 'Absent' or not attendance_map.get(student['id']) %}checked{% endif %}>
+                                            <label class="btn btn-outline-danger btn-sm" for="absent_{{ student['id'] }}">
+                                                <i class="fas fa-times me-1"></i> Absent
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 text-end">
+                        <button type="submit" class="btn btn-primary btn-lg shadow">
+                            <i class="fas fa-save me-2"></i> Save Attendance
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

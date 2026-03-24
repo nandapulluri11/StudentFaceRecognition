@@ -1,0 +1,131 @@
+
+{% extends "base.html" %}
+
+{% block title %}Faculty Dashboard - EduPortal{% endblock %}
+
+{% block content %}
+<div class="row mb-4 animate__animated animate__fadeInDown">
+    <div class="col-12">
+        <div class="card bg-white p-4">
+            <h1 class="h3 mb-0 fw-bold text-gray-800">Faculty Overview</h1>
+            <p class="text-muted mb-0">Monitor student performance and manage course attendance.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Course Management Cards -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card animate__animated animate__fadeInLeft">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-transparent">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-book me-2"></i>My Courses</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Course Name</th>
+                                <th>Description</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in courses %}
+                            <tr class="animate__animated animate__fadeInUp" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+                                <td><strong>{{ course['name'] }}</strong></td>
+                                <td class="text-muted">{{ course['description'] }}</td>
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('manage_attendance', course_id=course['id']) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-check-circle me-1"></i> Mark Attendance
+                                        </a>
+                                        <a href="{{ url_for('export_report', course_id=course['id']) }}" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-file-excel me-1"></i> Export Report
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Analytics -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card animate__animated animate__fadeInRight">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-transparent">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-chart-pie me-2"></i>Attendance Analytics</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height:300px; width:100%">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+                <div class="mt-4 text-center small">
+                    <span class="me-2">
+                        <i class="fas fa-circle text-primary"></i> Avg Attendance (%)
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Attendance Analytics Chart
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    const analyticsData = {{ analytics | tojson }};
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: analyticsData.map(a => a.name),
+            datasets: [{
+                label: 'Average Attendance %',
+                data: analyticsData.map(a => a.avg_attendance || 0),
+                backgroundColor: 'rgba(78, 115, 223, 0.8)',
+                borderColor: 'rgba(78, 115, 223, 1)',
+                borderWidth: 1,
+                borderRadius: 5,
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            animation: {
+                duration: 2000,
+                easing: 'easeOutQuart'
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        drawBorder: false,
+                        color: "rgba(234, 236, 244, 1)",
+                        zeroLineColor: "rgba(234, 236, 244, 1)"
+                    },
+                    ticks: {
+                        callback: function(value) { return value + "%"; }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

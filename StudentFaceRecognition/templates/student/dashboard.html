@@ -1,0 +1,196 @@
+
+{% extends "base.html" %}
+
+{% block title %}My Attendance - EduPortal{% endblock %}
+
+{% block content %}
+<div class="row mb-4 animate__animated animate__fadeInDown">
+    <div class="col-12">
+        <div class="card bg-white p-4">
+            <h1 class="h3 mb-0 fw-bold text-gray-800">My Attendance Overview</h1>
+            <p class="text-muted mb-0">Track your performance and attendance history.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Summary Cards -->
+    <div class="col-xl-3 col-md-6 mb-4 animate__animated animate__fadeInLeft" style="animation-delay: 0.1s">
+        <div class="card border-left-primary h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Classes</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats['total'] or 0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4 animate__animated animate__fadeInLeft" style="animation-delay: 0.2s">
+        <div class="card border-left-success h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Present</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats['present'] or 0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4 animate__animated animate__fadeInLeft" style="animation-delay: 0.3s">
+        <div class="card border-left-warning h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Late</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats['late'] or 0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4 animate__animated animate__fadeInLeft" style="animation-delay: 0.4s">
+        <div class="card border-left-danger h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Absent</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats['absent'] or 0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Attendance Distribution Chart -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card animate__animated animate__fadeInUp">
+            <div class="card-header py-3 bg-transparent">
+                <h6 class="m-0 font-weight-bold text-primary">Attendance Distribution</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height:300px; width:100%">
+                    <canvas id="studentAttendanceChart"></canvas>
+                </div>
+                <div class="mt-4 text-center small">
+                    <span class="me-2">
+                        <i class="fas fa-circle text-success"></i> Present
+                    </span>
+                    <span class="me-2">
+                        <i class="fas fa-circle text-warning"></i> Late
+                    </span>
+                    <span class="me-2">
+                        <i class="fas fa-circle text-danger"></i> Absent
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance History Table -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card animate__animated animate__fadeInUp">
+            <div class="card-header py-3 bg-transparent d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Recent History</h6>
+                <div class="input-group w-auto">
+                    <input type="text" id="historySearch" class="form-control form-control-sm" placeholder="Search by course...">
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Course Name</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in history %}
+                            <tr class="animate__animated animate__fadeInUp" style="animation-delay: {{ loop.index0 * 0.05 }}s">
+                                <td>{{ record['date'] }}</td>
+                                <td><strong>{{ record['course_name'] }}</strong></td>
+                                <td class="text-center">
+                                    {% if record['status'] == 'Present' %}
+                                    <span class="badge bg-success rounded-pill px-3">Present</span>
+                                    {% elif record['status'] == 'Late' %}
+                                    <span class="badge bg-warning rounded-pill px-3">Late</span>
+                                    {% else %}
+                                    <span class="badge bg-danger rounded-pill px-3">Absent</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Attendance Distribution Chart
+    const ctx = document.getElementById('studentAttendanceChart').getContext('2d');
+    const stats = {{ stats | tojson }};
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Present', 'Late', 'Absent'],
+            datasets: [{
+                data: [stats.present || 0, stats.late || 0, stats.absent || 0],
+                backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b'],
+                hoverBackgroundColor: ['#17a673', '#dda20a', '#be2617'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            animation: {
+                duration: 2000,
+                animateRotate: true,
+                animateScale: true
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            cutout: '75%'
+        }
+    });
+
+    // History Search Functionality
+    document.getElementById('historySearch').addEventListener('keyup', function() {
+        let value = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#historyTable tbody tr');
+        rows.forEach(row => {
+            let courseName = row.cells[1].innerText.toLowerCase();
+            row.style.display = courseName.includes(value) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

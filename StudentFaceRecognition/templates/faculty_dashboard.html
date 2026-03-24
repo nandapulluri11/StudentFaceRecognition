@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Faculty Dashboard</h1>
+        <p>Welcome to the faculty dashboard. Here you can manage your courses, assignments, and student submissions.</p>
+        <a href="{{ url_for('upload_note') }}" class="btn btn-primary mb-3">Upload Course Note</a>
+        
+        <h2>Uploaded Notes</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Upload Date</th>
+                    <th>File Size</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for note in notes %}
+                <tr>
+                    <td>{{ note['title'] }}</td>
+                    <td>{{ note['description'] }}</td>
+                    <td>{{ note['upload_date'] }}</td>
+                    <td>{{ note['file_size'] }} bytes</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
